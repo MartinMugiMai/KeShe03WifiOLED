@@ -19,6 +19,7 @@ void setup()
   Serial.begin(115200);
   Serial.println();
   u8g2.begin();   //选择U8G2模式，或者U8X8模式
+  u8g2.enableUTF8Print();
   get_WIFI();
   delay(5000);
   //httpWeather();
@@ -101,14 +102,21 @@ void httpWeather(){
         Serial.println(nnowWeather);
         Serial.println("温度:");
         Serial.println(nowTemp);
+        //u8g2.setFont(u8g2_font_unifont_t_chinese2);
+        u8g2.setFont(u8g2_font_wqy16_t_gb2312a);
+        u8g2.setFontDirection(0);
         u8g2.firstPage();
           do {
-            u8g2.setFont(u8g2_font_wqy16_t_gb2312a);
-
-            u8g2.setCursor(0,15);
+            //u8g2.setFont(u8g2_font_wqy16_t_gb2312a);
+            // u8g2.setFont(u8g2_font_unifont_t_chinese2);
+            // u8g2.setFontDirection(0);
+            u8g2.setCursor(10, 15);
+            u8g2.print("江门天气:");
             u8g2.print(nnowWeather);
-            u8g2.drawStr(0,35,"Temp:");
-            
+            u8g2.setCursor(0, 35);
+            u8g2.print("温度:");
+            //u8g2.drawStr(0, 35, "温度:");
+
             u8g2.setCursor(40,35);
             u8g2.print(nowTemp);
             
