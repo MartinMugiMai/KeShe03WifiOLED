@@ -5,9 +5,12 @@
 #include <SPI.h>
 #include <U8g2lib.h>
 
-U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 0, /* data=*/ 4, /* cs=*/ 15, /* dc=*/ 16, /* reset=*/ 5);
+//U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 0, /* data=*/ 4, /* cs=*/ 15, /* dc=*/ 16, /* reset=*/ 5);
 
-HTTPClient http;//实例化一个httpclinet请求类 C++ 写法
+//U8G2_SSD1306_128X64_NONAME_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 5, /* dc=*/ 4, /* reset=*/ 0);
+
+U8G2_SSD1306_128X32_UNIVISION_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
+HTTPClient http; //实例化一个httpclinet请求类 C++ 写法
 String nnowWeather = "";
 String nowTemp = "";
 int test21 = 21;
