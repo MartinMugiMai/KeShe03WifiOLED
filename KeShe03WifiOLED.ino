@@ -4,6 +4,10 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <U8g2lib.h>
+#include <DHT.h>
+#define DHTPIN 2 //D4
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE); //实例化DHT C++风格
 
 //U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 0, /* data=*/ 4, /* cs=*/ 15, /* dc=*/ 16, /* reset=*/ 5);
 
@@ -17,12 +21,16 @@ HTTPClient http; //实例化一个httpclinet请求类 C++ 写法
 String nnowWeather = "";
 String nowTemp = "";
 int test21 = 21;
-
+float dhtH = 1.1;
+float dhtT = 1.1;
 
 void setup()
 {
   // put your setup code here, to run once:
+  
   Serial.begin(115200);
+  dht.begin();
+
   Serial.println();
   u8g2.begin();   //选择U8G2模式，或者U8X8模式
   u8g2.enableUTF8Print();
@@ -46,6 +54,16 @@ void loop() {
 //  delay(1000);
   
   delay(5000);
+}
+void get_DHT(){
+  float h = dht.readHumidity(); //获取湿度
+  float t = dht.readTemperature();//获取温度
+  dhtH = h;
+  dhtT = t;
+  Serial.println(h);
+  Serial.println(t);
+  delay(1000);
+  Serial.println("传感器温度获取完成");
 }
 
 void get_WIFI(){
@@ -108,7 +126,10 @@ void httpWeather(){
         Serial.println(nnowWeather);
         Serial.println("温度:");
         Serial.println(nowTemp);
+        get_DHT();//调用传感器函数
+
         //u8g2.setFont(u8g2_font_unifont_t_chinese2);
+
         u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
         u8g2.setFontDirection(0);
         u8g2.firstPage();
@@ -125,7 +146,15 @@ void httpWeather(){
 
             u8g2.setCursor(40,25);
             u8g2.print(nowTemp);
-            
+            u8g2.setCursor(0,40);
+            u8g2.print("室内温度:");
+            u8g2.setCursor(50,40);
+            u8g2.print(dhtT);
+            u8g2.setCursor(0,55);
+            u8g2.print("室内湿度:");
+            u8g2.setCursor(50,55);
+            u8g2.print(dhtH);
+
           } while ( u8g2.nextPage() );
           delay(1000);
         delay(100);
