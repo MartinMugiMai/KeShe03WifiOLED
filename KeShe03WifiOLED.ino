@@ -9,7 +9,9 @@
 
 //U8G2_SSD1306_128X64_NONAME_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 5, /* dc=*/ 4, /* reset=*/ 0);
 
-U8G2_SSD1306_128X32_UNIVISION_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
+//U8G2_SSD1306_128X32_UNIVISION_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
+U8G2_SSD1306_128X32_UNIVISION_1_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
+
 HTTPClient http; //实例化一个httpclinet请求类 C++ 写法
 String nnowWeather = "";
 String nowTemp = "";
@@ -106,21 +108,21 @@ void httpWeather(){
         Serial.println("温度:");
         Serial.println(nowTemp);
         //u8g2.setFont(u8g2_font_unifont_t_chinese2);
-        u8g2.setFont(u8g2_font_wqy16_t_gb2312a);
+        u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
         u8g2.setFontDirection(0);
         u8g2.firstPage();
           do {
             //u8g2.setFont(u8g2_font_wqy16_t_gb2312a);
             // u8g2.setFont(u8g2_font_unifont_t_chinese2);
             // u8g2.setFontDirection(0);
-            u8g2.setCursor(10, 15);
+            u8g2.setCursor(10, 10);
             u8g2.print("江门天气:");
             u8g2.print(nnowWeather);
-            u8g2.setCursor(0, 35);
+            u8g2.setCursor(0, 25);
             u8g2.print("温度:");
             //u8g2.drawStr(0, 35, "温度:");
 
-            u8g2.setCursor(40,35);
+            u8g2.setCursor(40,25);
             u8g2.print(nowTemp);
             
           } while ( u8g2.nextPage() );
