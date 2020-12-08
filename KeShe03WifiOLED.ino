@@ -2,20 +2,41 @@
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
 #include <Arduino.h>
+//#include <stdio.h>
 #include <SPI.h>
 #include <U8g2lib.h>
 #include <DHT.h>
+#include <SoftwareSerial.h> //启用软串口用作语音播报串口通信
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+//#include <Syn6288.h>
+
 #define DHTPIN 2 //D4
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE); //实例化DHT C++风格
 
+SoftwareSerial softSerial1(14,12); //实例化软串口 rx使用D5 io14 与syn6288 tx相连 、 tx使用D6 io12引脚与syn6288 rx相连
+unsigned char numDic[] = {0xD2, 0xBB, 0xB6, 0xFE, 0xC8, 0xFD, 0xCB, 0xC4, 0xCE, 0xE5, 0xC1, 0xF9, 0xC6, 0xDF, 0xB0, 0xCB, 0xBE, 0xC5, 0xCA, 0xAE};//2n 和2n-1
+unsigned int text1[] = {0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7, 0x93}; //现在江门温度是
+unsigned int text2[] = {0xFD, 0x00, 0x05, 0x01, 0x00, 0xB6, 0xC8, 0x87}; //度
+unsigned int text3[] = {0xFD, 0x00, 0x11, 0x01, 0x00}; //初始5位
+unsigned int text4[] = {0xFD, 0x00, 0x11, 0x01, 0x00, 0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7, 0x92};
+
+unsigned char text9wei[] = {0xFD, 0x00, 0x19, 0x01, 0x00, 0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7, 0xC1, 0xF9, 0xC1, 0xF9, 0xC1, 0xF9, 0xB6, 0xC8, 0xDD};//19 20 21 22 23 24
+unsigned int text7wei[] = {0xFD, 0x00, 0x07, 0x01, 0x00, 0xB6, 0xFE, 0xCA, 0xAE, 0xD7};
+unsigned int text5wei[] = {0xFD, 0x00, 0x07, 0x01, 0x00, 0xB6, 0xFE, 0xB1};
+
+unsigned int textt;
 //U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 0, /* data=*/ 4, /* cs=*/ 15, /* dc=*/ 16, /* reset=*/ 5);
 
 //U8G2_SSD1306_128X64_NONAME_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 5, /* dc=*/ 4, /* reset=*/ 0);
 
 //U8G2_SSD1306_128X32_UNIVISION_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
 //U8G2_SSD1306_128X32_UNIVISION_1_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
-U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // ESP32 Thing, pure SW emulated I2C
+U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // 参照ESP32 Thing, pure SW emulated I2C esp8266引脚 D1给SDL D2给CLK
 
 HTTPClient http; //实例化一个httpclinet请求类 C++ 写法
 String nnowWeather = "";
@@ -29,6 +50,8 @@ void setup()
   // put your setup code here, to run once:
   
   Serial.begin(115200);
+  softSerial1.begin(9600);
+  softSerial1.listen();
   dht.begin();
 
   Serial.println();
@@ -42,19 +65,156 @@ void setup()
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
+  //speechJM();
+  speechTemp();
+  //speechJM2();
+  //syn.play(text1, sizeof(text1), 1);
   httpWeather();
-//  u8g2.firstPage();
-//  do {
-//    u8g2.setFont(u8g2_font_ncenB14_tr);
-//    u8g2.drawStr(0,15,"Temp:");
-//    u8g2.print(nowTemp);
-//    
-//  } while ( u8g2.nextPage() );
-//  delay(1000);
+  //  u8g2.firstPage();
+  //  do {
+  //    u8g2.setFont(u8g2_font_ncenB14_tr);
+  //    u8g2.drawStr(0,15,"Temp:");
+  //    u8g2.print(nowTemp);
+  //
+  //  } while ( u8g2.nextPage() );
+  //  delay(1000);
   
   delay(5000);
 }
+
+// void getNumYin(int cnum){
+//   int m = cnum * 2;
+//   int n = (cnum * 2) - 1;
+
+//   unsigned int gstr1 = numDic[n];
+//   unsigned int gstr2 = numDic[m];
+// } 应该改用面向对象编程思想的类写法更好，因为需要回传两个返回值
+
+unsigned int weiNum = 0x00;
+unsigned int str1 = 0x00;
+unsigned int str2 = 0x00;
+void speechTemp()
+{
+  unsigned int i = 0;
+  if (test21%10 == 0){
+    if (test21 == 10){
+        weiNum = 0x05;
+      }
+    else {
+      weiNum = 0x07;
+    }
+  }else { 
+    if (test21 < 10)
+    {
+      weiNum = 0x05;
+    }else if (test21 > 10 && test21 < 20)
+    {
+      weiNum = 0x07;
+    }else if (test21 >20){
+      weiNum = 0x09;
+      Serial.println("三位啊");
+      // int shiWei = test21 / 10;
+      // int geWei = test21 - (shiWei * 10);
+      // str1 = numDic[((shiWei * 2) - 1)];
+      // str2 = numDic[(shiWei * 2)];
+      // text9wei[19] = str1;
+      // text9wei[20] = str2;
+      // str1 = numDic[((10 * 2) - 1)];
+      // str2 = numDic[(10 * 2)];
+      // text9wei[21] = str1;
+      // text9wei[22] = str2;
+      // str1 = numDic[((geWei * 2) - 1)];
+      // str2 = numDic[(geWei * 2)];
+      // text9wei[23] = str1;
+      // text9wei[24] = str2;
+      // Serial.println(sizeof(text9wei)/sizeof(char));
+      // Serial.println(sizeof(text5wei));
+      for (i = 0; i < (sizeof(text9wei)/sizeof(char)); i++)
+      {
+        //Serial.println(text9wei[i]);
+        softSerial1.write(text9wei[i]);
+      }
+    }
+  }
+}
+
+
+
+void speechJM2(){
+  unsigned int i = 0;
+  //unsigned int j = 0;
+
+  // for (j = 0; j < sizeof(text3); j++)
+  // {
+  //   softSerial1.write(text3[j]);
+  // }
+  for (i = 0; i < sizeof(text2); i++)
+  {
+    softSerial1.write(text2[i]);
+  }
+}
+void speechJM(){
+  unsigned int i = 0;
+  unsigned int j = 0;
+
+  for (j = 0; j < (sizeof(text3)/4); j++)
+  {
+    softSerial1.write(text3[j]);
+  }
+  for (i = 0; i < (sizeof(text1)/4); i++)
+  {
+    softSerial1.write(text1[i]);
+  }
+}
+
+void speech(){
+  unsigned char i = 0;
+  unsigned char head[20];
+
+  head[0] = 0xFD;
+  head[1] = 0x00;
+  head[2] = 0x11;
+  head[3] = 0x01;
+  head[4] = 0x00;
+  head[5] = 0xCF;
+  head[6] = 0xD6;
+  head[7] = 0xD4;
+  head[8] = 0xDA;
+  head[9] = 0xBD;
+  head[10] = 0xAD;
+  head[11] = 0xC3;
+  head[12] = 0xC5;
+  head[13] = 0xCE;
+  head[14] = 0xC2;
+  head[15] = 0xB6;
+  head[16] = 0xC8;
+  head[17] = 0xCA;
+  head[18] = 0xC7;
+  head[19] = 0x93;
+
+  for(i=0; i<20; i++){
+    softSerial1.write(head[i]);
+    //Serial.write(head[i]);
+  }
+}
+
+class Syn6288 {
+  public:
+  uint8_t music;
+  uint8_t TEXTLEN;
+  uint8_t pi;
+  void play(uint8_t *text,uint8_t TEXTLEN,uint8_t music);
+//void play(uint8_t *text,uint8_t music);
+  void Slaveboudset(uint16_t boudr);
+  void stop();
+  void restore();
+  void inquire();
+  void Pause();
+  void sleep();
+};
+
+
+
 void get_DHT(){
   float h = dht.readHumidity(); //获取湿度
   float t = dht.readTemperature();//获取温度
