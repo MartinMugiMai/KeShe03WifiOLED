@@ -2,6 +2,10 @@
     "files.associations": {
         "*.m": "matlab",
         "algorithm": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "__locale": "cpp",
+        "__string": "cpp",
+        "string": "cpp",
+        "string_view": "cpp"
     }
 }
