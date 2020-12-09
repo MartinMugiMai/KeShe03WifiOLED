@@ -19,13 +19,13 @@ using namespace std;
 DHT dht(DHTPIN, DHTTYPE); //实例化DHT C++风格
 
 SoftwareSerial softSerial1(14,12); //实例化软串口 rx使用D5 io14 与syn6288 tx相连 、 tx使用D6 io12引脚与syn6288 rx相连
-unsigned char numDic[] = {0xD2, 0xBB, 0xB6, 0xFE, 0xC8, 0xFD, 0xCB, 0xC4, 0xCE, 0xE5, 0xC1, 0xF9, 0xC6, 0xDF, 0xB0, 0xCB, 0xBE, 0xC5, 0xCA, 0xAE};//2n 和2n-1
+unsigned int numDic[] = {0xD2, 0xBB, 0xB6, 0xFE, 0xC8, 0xFD, 0xCB, 0xC4, 0xCE, 0xE5, 0xC1, 0xF9, 0xC6, 0xDF, 0xB0, 0xCB, 0xBE, 0xC5, 0xCA, 0xAE};//2n-1 和2n-2
 unsigned int text1[] = {0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7}; //现在江门温度是
 unsigned int text2[] = {0xFD, 0x00, 0x05, 0x01, 0x00, 0xB6, 0xC8, 0x87}; //度
 unsigned int text3[] = {0xFD, 0x00, 0x11, 0x01, 0x00}; //初始5位
 unsigned int text4[] = {0xFD, 0x00, 0x11, 0x01, 0x00, 0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7, 0x92};
-byte textN2[] = {0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7};
-byte textN1[] = {0xB6, 0xC8};
+unsigned int textN2[] = {0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7};
+unsigned int textN1[] = {0xB6, 0xC8};
 
 unsigned char text9wei[] = {0xFD, 0x00, 0x19, 0x01, 0x00, 0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7, 0xC1, 0xF9, 0xC1, 0xF9, 0xC1, 0xF9, 0xB6, 0xC8, 0xDD};//19 20 21 22 23 24
 unsigned int text7wei[] = {0xFD, 0x00, 0x07, 0x01, 0x00, 0xB6, 0xFE, 0xCA, 0xAE, 0xD7};
@@ -47,7 +47,7 @@ int test21 = 21;
 float dhtH = 1.1;
 float dhtT = 1.1;
 
-int length = 0;
+int length1 = 0;
 
 void setup()
 {
@@ -70,12 +70,14 @@ void setup()
 void loop() {
   // put your main code here, to run repeatedly:
   //speechJM();
-  //speechTemp();
-  length = sizeof(textN2) / sizeof(byte);
-  synout(textN2, length);
-  length = 0;
-  length = sizeof(textN1) / sizeof(byte);
-  synout(textN1, length);
+  String testt4 = "17";
+  String qt = testt4;
+  //speechTemp(qt.toInt());
+  // length1 = sizeof(textN2) / sizeof(byte);
+  // synout(textN2, length1);
+  // length1 = 0;
+  // length1 = sizeof(textN1) / sizeof(byte);
+  // synout(textN1, length1);
   //speechJM2();
   //syn.play(text1, sizeof(text1), 1);
   httpWeather();
@@ -102,11 +104,11 @@ void loop() {
 
 
 ////读一段文字&print函数
-void synout(byte yyd[] , int len)
+void synout(unsigned int yyd[] , int len)
 {
   int i = 0;
-  byte yuyindata[206]; //文本字符200+6个控制字符
-  byte yihuo = 0;
+  unsigned int yuyindata[206]; //文本字符200+6个控制字符
+  unsigned int yihuo = 0;
 
   //yuyin组装前缀控制符
   yuyindata[0] = 0xFD;
@@ -139,48 +141,77 @@ void synout(byte yyd[] , int len)
 unsigned int weiNum = 0x00;
 unsigned int str1 = 0x00;
 unsigned int str2 = 0x00;
-void speechTemp()
+void speechTemp(int temp1)
 {
   unsigned int i = 0;
-  if (test21%10 == 0){
-    if (test21 == 10){
+  if (temp1%10 == 0){
+    if (temp1 == 10){
         weiNum = 0x05;
       }
     else {
       weiNum = 0x07;
     }
   }else { 
-    if (test21 < 10)
+    if (temp1 <= 10)
     {
       weiNum = 0x05;
-    }else if (test21 > 10 && test21 < 20)
+    }
+    else if (temp1 > 10 && temp1 < 20)
     {
       weiNum = 0x07;
-    }else if (test21 >20){
-      weiNum = 0x09;
-      Serial.println("三位啊");
-      // int shiWei = test21 / 10;
-      // int geWei = test21 - (shiWei * 10);
-      // str1 = numDic[((shiWei * 2) - 1)];
-      // str2 = numDic[(shiWei * 2)];
-      // text9wei[19] = str1;
-      // text9wei[20] = str2;
-      // str1 = numDic[((10 * 2) - 1)];
-      // str2 = numDic[(10 * 2)];
-      // text9wei[21] = str1;
-      // text9wei[22] = str2;
-      // str1 = numDic[((geWei * 2) - 1)];
-      // str2 = numDic[(geWei * 2)];
-      // text9wei[23] = str1;
-      // text9wei[24] = str2;
-      // Serial.println(sizeof(text9wei)/sizeof(char));
-      // Serial.println(sizeof(text5wei));
-      for (i = 0; i < (sizeof(text9wei)/sizeof(char)); i++)
-      {
-        //Serial.println(text9wei[i]);
-        softSerial1.write(text9wei[i]);
-      }
+      //int shiWei = temp1 / 10;
+      unsigned int str3[] = {numDic[18], numDic[19]};
+      int geWei = temp1 - 10;
+      unsigned int str4[] = {numDic[(2*geWei)-2], numDic[(2*geWei)-1]};
+      
+      length1 = sizeof(textN2) / sizeof(unsigned int); //今天江门温度是
+      synout(textN2, length1);
+      length1 = 0;
+
+
+
+      int length2 = sizeof(str3) / sizeof(unsigned int); //温度值
+      synout(str3, length2);
+      delay(200);
+      length2 = sizeof(str4) / sizeof(unsigned int);//温度值
+      synout(str4, length2);
+      delay(200);
+      length1 = sizeof(textN1) / sizeof(unsigned int); //度
+      synout(textN1, length1);
+
+
     }
+    else if (temp1 == 20)
+    {
+      //byte str4[]
+    }
+    else if (temp1 > 20)
+      {
+        weiNum = 0x09;
+        Serial.println("三位啊");
+        
+        // int shiWei = test21 / 10;
+        // int geWei = test21 - (shiWei * 10);
+        // str1 = numDic[((shiWei * 2) - 1)];
+        // str2 = numDic[(shiWei * 2)];
+        // text9wei[19] = str1;
+        // text9wei[20] = str2;
+        // str1 = numDic[((10 * 2) - 1)];
+        // str2 = numDic[(10 * 2)];
+        // text9wei[21] = str1;
+        // text9wei[22] = str2;
+        // str1 = numDic[((geWei * 2) - 1)];
+        // str2 = numDic[(geWei * 2)];
+        // text9wei[23] = str1;
+        // text9wei[24] = str2;
+        // Serial.println(sizeof(text9wei)/sizeof(char));
+        // Serial.println(sizeof(text5wei));
+        // for (i = 0; i < (sizeof(text9wei)/sizeof(char)); i++)
+        // {
+        //   //Serial.println(text9wei[i]);
+        //   softSerial1.write(text9wei[i]);
+        //}
+      }
   }
 }
 
@@ -320,12 +351,12 @@ void httpWeather(){
         const char* results_0_now_text = results_0_now["text"]; // "晴"
         const char* results_0_now_code = results_0_now["code"]; // "0"
         const char* results_0_now_temperature = results_0_now["temperature"]; // "5"
-
+        String nowTempYY = results_0_now["temperature"];
         const char* results_0_last_update = results_0["last_update"]; // "2020-11-23T15:20:00+08:00"
 
         nnowWeather = results_0_now_text;
         nowTemp = results_0_now_temperature;
-        
+        int nowTempInt = nowTempYY.toInt();
 
         http.end();
         Serial.println("江门天气是:");
@@ -363,6 +394,7 @@ void httpWeather(){
 
           } while ( u8g2.nextPage() );
           delay(1000);
+          speechTemp(nowTempInt);
         delay(100);
       }else {
         Serial.printf(http.errorToString(httpCode).c_str());
