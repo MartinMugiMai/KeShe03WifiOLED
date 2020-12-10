@@ -70,7 +70,7 @@ void setup()
 void loop() {
   // put your main code here, to run repeatedly:
   //speechJM();
-  String testt4 = "17";
+  String testt4 = "20";
   String qt = testt4;
   //speechTemp(qt.toInt());
   // length1 = sizeof(textN2) / sizeof(byte);
@@ -144,7 +144,7 @@ unsigned int str2 = 0x00;
 void speechTemp(int temp1)
 {
   unsigned int i = 0;
-  if (temp1%10 == 0){
+  if (temp1 == 10){
     if (temp1 == 10){
         weiNum = 0x05;
       }
@@ -183,34 +183,68 @@ void speechTemp(int temp1)
     }
     else if (temp1 == 20)
     {
-      //byte str4[]
+      int shiWei = temp1 / 10;
+      unsigned int str3[] = {numDic[(shiWei * 2) - 2], numDic[(shiWei * 2) - 1]};
+      unsigned int str5[] = {numDic[18], numDic[19]}; //十
+      length1 = sizeof(textN2) / sizeof(unsigned int); //今天江门温度是
+      synout(textN2, length1);
+      length1 = 0;
+
+      int length2 = sizeof(str3) / sizeof(unsigned int); //温度值
+      synout(str3, length2);
+      delay(200);
+      length2 = sizeof(str5) / sizeof(unsigned int); //温度值
+      synout(str5, length2);
+      delay(200);
+      length1 = sizeof(textN1) / sizeof(unsigned int); //度
+      synout(textN1, length1);
+      
     }
     else if (temp1 > 20)
-      {
+      { 
+        if((temp1%10)==0){
+          int shiWei = temp1 / 10;
+          unsigned int str3[] = {numDic[(shiWei*2)-2], numDic[(shiWei*2)-1]};
+          unsigned int str5[] = {numDic[18], numDic[19]}; //十
+
+          length1 = sizeof(textN2) / sizeof(unsigned int); //今天江门温度是
+          synout(textN2, length1);
+          length1 = 0;
+
+          int length2 = sizeof(str3) / sizeof(unsigned int); //温度值
+          synout(str3, length2);
+          delay(200);
+          length2 = sizeof(str5) / sizeof(unsigned int); //温度值
+          synout(str5, length2);
+          delay(200);
+          length1 = sizeof(textN1) / sizeof(unsigned int); //度
+          synout(textN1, length1);
+        }else{//不是30、40这种整十时候
         weiNum = 0x09;
-        Serial.println("三位啊");
-        
-        // int shiWei = test21 / 10;
-        // int geWei = test21 - (shiWei * 10);
-        // str1 = numDic[((shiWei * 2) - 1)];
-        // str2 = numDic[(shiWei * 2)];
-        // text9wei[19] = str1;
-        // text9wei[20] = str2;
-        // str1 = numDic[((10 * 2) - 1)];
-        // str2 = numDic[(10 * 2)];
-        // text9wei[21] = str1;
-        // text9wei[22] = str2;
-        // str1 = numDic[((geWei * 2) - 1)];
-        // str2 = numDic[(geWei * 2)];
-        // text9wei[23] = str1;
-        // text9wei[24] = str2;
-        // Serial.println(sizeof(text9wei)/sizeof(char));
-        // Serial.println(sizeof(text5wei));
-        // for (i = 0; i < (sizeof(text9wei)/sizeof(char)); i++)
-        // {
-        //   //Serial.println(text9wei[i]);
-        //   softSerial1.write(text9wei[i]);
-        //}
+        Serial.println("三位啊"); // 例如 21 语音就会读 二 十 一 三个字所以就 三位啊        
+        int shiWei = temp1 / 10;
+        int geWei = temp1 - (shiWei * 10);
+        unsigned int str3[] = {numDic[(shiWei*2)-2], numDic[(shiWei*2)-1]};
+        unsigned int str5[] = {numDic[18], numDic[19]}; //十
+        unsigned int str4[] = {numDic[(2*geWei)-2], numDic[(2*geWei)-1]};
+        length1 = sizeof(textN2) / sizeof(unsigned int); //今天江门温度是
+        synout(textN2, length1);
+        length1 = 0;
+
+
+
+        int length2 = sizeof(str3) / sizeof(unsigned int); //温度值
+        synout(str3, length2);
+        delay(200);
+        length2 = sizeof(str5) / sizeof(unsigned int); //温度值
+        synout(str5, length2);
+        delay(200);
+        length2 = sizeof(str4) / sizeof(unsigned int);//温度值
+        synout(str4, length2);
+        delay(200);
+        length1 = sizeof(textN1) / sizeof(unsigned int); //度
+        synout(textN1, length1);
+        }
       }
   }
 }
