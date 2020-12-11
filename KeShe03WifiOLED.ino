@@ -46,14 +46,16 @@ String nowTemp = "";
 int test21 = 21;
 float dhtH = 1.1;
 float dhtT = 1.1;
-
+int nowTempInt = 23;
 int length1 = 0;
-
+int zongduanState = 0;
 void setup()
 {
   // put your setup code here, to run once:
   
   Serial.begin(115200);
+  //pinMode(13, INPUT_PULLUP);
+  attachInterrupt(13, lowInterrupt, FALLING);
   softSerial1.begin(9600);
   softSerial1.listen();
   dht.begin();
@@ -62,8 +64,20 @@ void setup()
   u8g2.begin();   //选择U8G2模式，或者U8X8模式
   u8g2.enableUTF8Print();
   get_WIFI();
+  attachInterrupt(13, lowInterrupt, FALLING);
   delay(5000);
   //httpWeather();
+  
+}
+
+ICACHE_RAM_ATTR void lowInterrupt(){
+  //led = -led;
+  //Serial.println("66666666");
+  //speechTemp(22);
+  zongduanState = 1;
+  detachInterrupt(0);
+  attachInterrupt(0, lowInterrupt, FALLING);
+  
   
 }
 
@@ -72,6 +86,15 @@ void loop() {
   //speechJM();
   String testt4 = "20";
   String qt = testt4;
+
+  if (zongduanState == 1)
+  {
+    zongduanState = 0;
+    Serial.println(zongduanState);
+    speechTemp(nowTempInt);
+    delay(500);
+  }
+
   //speechTemp(qt.toInt());
   // length1 = sizeof(textN2) / sizeof(byte);
   // synout(textN2, length1);
@@ -81,6 +104,13 @@ void loop() {
   //speechJM2();
   //syn.play(text1, sizeof(text1), 1);
   httpWeather();
+  // if (zongduanState == 1)
+  // {
+  //   zongduanState = 0;
+  //   Serial.println(zongduanState);
+  //   speechTemp(22);
+  //   delay(500);
+  // }
   //  u8g2.firstPage();
   //  do {
   //    u8g2.setFont(u8g2_font_ncenB14_tr);
@@ -390,8 +420,8 @@ void httpWeather(){
 
         nnowWeather = results_0_now_text;
         nowTemp = results_0_now_temperature;
-        int nowTempInt = nowTempYY.toInt();
-
+        nowTempInt = nowTempYY.toInt();
+          Serial.println(nowTempInt);
         http.end();
         Serial.println("江门天气是:");
         Serial.println(nnowWeather);
@@ -428,7 +458,7 @@ void httpWeather(){
 
           } while ( u8g2.nextPage() );
           delay(1000);
-          speechTemp(nowTempInt);
+          // speechTemp(nowTempInt);
         delay(100);
       }else {
         Serial.printf(http.errorToString(httpCode).c_str());
