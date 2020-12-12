@@ -63,9 +63,12 @@ void setup()
   Serial.println();
   u8g2.begin();   //选择U8G2模式，或者U8X8模式
   u8g2.enableUTF8Print();
+  u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
+  u8g2.setFontDirection(0);
   get_WIFI();
   attachInterrupt(13, lowInterrupt, FALLING);
   delay(5000);
+  httpWeather();
   //httpWeather();
   
 }
@@ -84,6 +87,28 @@ ICACHE_RAM_ATTR void lowInterrupt(){
 void loop() {
   // put your main code here, to run repeatedly:
   //speechJM();
+  get_DHT();//调用传感器函数
+  u8g2.firstPage();
+  do{
+  u8g2.setCursor(10, 10);
+  u8g2.print("江门天气:");
+  u8g2.print(nnowWeather);
+  u8g2.setCursor(0, 25);
+  u8g2.print("温度:");
+            //u8g2.drawStr(0, 35, "温度:");
+
+  u8g2.setCursor(40,25);
+  u8g2.print(nowTemp);
+  u8g2.setCursor(0,40);
+  u8g2.print("室内温度:");
+  u8g2.setCursor(50,40);
+  u8g2.print(dhtT);
+  u8g2.setCursor(0,55);
+  u8g2.print("室内湿度:");
+  u8g2.setCursor(50,55);
+  u8g2.print(dhtH);
+  } while ( u8g2.nextPage() );
+
   String testt4 = "20";
   String qt = testt4;
 
@@ -103,7 +128,7 @@ void loop() {
   // synout(textN1, length1);
   //speechJM2();
   //syn.play(text1, sizeof(text1), 1);
-  httpWeather();
+  // httpWeather();
   // if (zongduanState == 1)
   // {
   //   zongduanState = 0;
@@ -120,7 +145,7 @@ void loop() {
   //  } while ( u8g2.nextPage() );
   //  delay(1000);
   
-  delay(5000);
+  delay(500);
 }
 
 // void getNumYin(int cnum){
@@ -431,8 +456,8 @@ void httpWeather(){
 
         //u8g2.setFont(u8g2_font_unifont_t_chinese2);
 
-        u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
-        u8g2.setFontDirection(0);
+        // u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
+        // u8g2.setFontDirection(0);
         u8g2.firstPage();
           do {
             //u8g2.setFont(u8g2_font_wqy16_t_gb2312a);
