@@ -54,8 +54,8 @@ void setup()
   // put your setup code here, to run once:
   
   Serial.begin(115200);
-  //pinMode(13, INPUT_PULLUP);
-  attachInterrupt(13, lowInterrupt, FALLING);
+  pinMode(15, INPUT_PULLUP);
+  attachInterrupt(15, lowInterrupt, FALLING);//按键中断用D7 13 D8 15
   softSerial1.begin(9600);
   softSerial1.listen();
   dht.begin();
