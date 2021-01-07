@@ -54,8 +54,10 @@ void setup()
   // put your setup code here, to run once:
   
   Serial.begin(115200);
-  pinMode(15, INPUT_PULLUP);
-  attachInterrupt(15, lowInterrupt, FALLING);//按键中断用D7 13 D8 15
+  pinMode(13, INPUT_PULLUP);
+  pinMode(0, INPUT_PULLUP);
+  attachInterrupt(13, lowInterrupt, FALLING); //按键中断用D7 13 D8 15
+  attachInterrupt(0, D3Interrupt, FALLING);
   softSerial1.begin(9600);
   softSerial1.listen();
   dht.begin();
@@ -75,11 +77,25 @@ void setup()
 
 ICACHE_RAM_ATTR void lowInterrupt(){
   //led = -led;
-  //Serial.println("66666666");
+  Serial.println("66666666");
   //speechTemp(22);
   zongduanState = 1;
+  detachInterrupt(13);
+  attachInterrupt(13, lowInterrupt, FALLING);
   detachInterrupt(0);
-  attachInterrupt(0, lowInterrupt, FALLING);
+  attachInterrupt(0, D3Interrupt, FALLING);
+  
+  
+}
+ICACHE_RAM_ATTR void D3Interrupt(){
+  //led = -led;
+  Serial.println("D3D3D3");
+  //speechTemp(22);
+  zongduanState = 1;
+  detachInterrupt(13);
+  attachInterrupt(13, lowInterrupt, FALLING);
+  detachInterrupt(0);
+  attachInterrupt(0, D3Interrupt, FALLING);
   
   
 }
