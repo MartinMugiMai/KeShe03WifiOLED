@@ -20,6 +20,7 @@ DHT dht(DHTPIN, DHTTYPE); //实例化DHT C++风格
 
 SoftwareSerial softSerial1(14,12); //实例化软串口 rx使用D5 io14 与syn6288 tx相连 、 tx使用D6 io12引脚与syn6288 rx相连
 unsigned int numDic[] = {0xD2, 0xBB, 0xB6, 0xFE, 0xC8, 0xFD, 0xCB, 0xC4, 0xCE, 0xE5, 0xC1, 0xF9, 0xC6, 0xDF, 0xB0, 0xCB, 0xBE, 0xC5, 0xCA, 0xAE};//2n-1 和2n-2
+unsigned int numZero[] = {0xC1, 0xE3};
 unsigned int text1[] = {0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7}; //现在江门温度是
 unsigned int text2[] = {0xFD, 0x00, 0x05, 0x01, 0x00, 0xB6, 0xC8, 0x87}; //度
 unsigned int text3[] = {0xFD, 0x00, 0x11, 0x01, 0x00}; //初始5位
@@ -132,6 +133,7 @@ void loop() {
   {
     zongduanState = 0;
     Serial.println(zongduanState);
+    //speechTemp(10);
     speechTemp(nowTempInt);
     delay(500);
   }
@@ -215,9 +217,19 @@ unsigned int str2 = 0x00;
 void speechTemp(int temp1)
 {
   unsigned int i = 0;
-  if (temp1 == 10){
-    if (temp1 == 10){
+  if (temp1 <= 0){
+    if (temp1 == 0){
         weiNum = 0x05;
+        int geWei = temp1;
+        unsigned int str4[] = {numZero[0], numZero[1]};
+        int length1 = sizeof(textN2) / sizeof(unsigned int); //今天江门温度是
+        synout(textN2, length1);
+        length1 = 0;
+        int length2 = sizeof(str4) / sizeof(unsigned int);//温度值 0
+        synout(str4, length2);
+        delay(200);
+        length1 = sizeof(textN1) / sizeof(unsigned int); //度
+        synout(textN1, length1);
       }
     else {
       weiNum = 0x07;
@@ -226,6 +238,24 @@ void speechTemp(int temp1)
     if (temp1 <= 10)
     {
       weiNum = 0x05;
+      Serial.println("当前温度是");
+      Serial.println(temp1);
+      int geWei = temp1;
+      unsigned int str4[] = {numDic[(2*geWei)-2], numDic[(2*geWei)-1]};
+
+      int length1 = sizeof(textN2) / sizeof(unsigned int); //今天江门温度是
+      synout(textN2, length1);
+      length1 = 0;
+
+      int length2 = sizeof(str4) / sizeof(unsigned int);//温度值
+      synout(str4, length2);
+
+
+      delay(200);
+      length1 = sizeof(textN1) / sizeof(unsigned int); //度
+      synout(textN1, length1);
+
+
     }
     else if (temp1 > 10 && temp1 < 20)
     {
