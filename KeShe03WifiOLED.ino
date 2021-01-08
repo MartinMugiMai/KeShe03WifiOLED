@@ -53,8 +53,40 @@ int nowTempInt = 23;
 int nWCode = 0;
 int length1 = 0;
 int zongduanState = 0;
-void setup()
+int oledState = 1; //1显示温度 -1显示对比
+
+//创建一个叫温度对比的C++类
+class wenDuDuiBi
 {
+  public:
+  //String dx = "";
+  float chaZhi = 1.0;
+  int zhuangtai = 0;
+  void biYiXia(int webTemp, float hereTemp)
+  {
+    double dwebTemp = webTemp;
+    if (dwebTemp < hereTemp)
+      {
+        //dx = "小于";
+        chaZhi = hereTemp - dwebTemp;
+        zhuangtai = 1;
+      }
+    else if (dwebTemp == hereTemp)
+      {
+        //dx = "等于";
+        chaZhi = 0;
+        zhuangtai = 0;
+      }else if(dwebTemp > hereTemp){
+        //dx = "大于";
+        chaZhi = dwebTemp - hereTemp;
+        zhuangtai = 2;
+      }
+  }
+};
+
+wenDuDuiBi wddb; //然后马上实例化一个温度对比
+
+void setup(){
   // put your setup code here, to run once:
   
   Serial.begin(115200);
@@ -95,7 +127,9 @@ ICACHE_RAM_ATTR void D3Interrupt(){
   //led = -led;
   Serial.println("D3D3D3");
   //speechTemp(22);
-  zongduanState = 1;
+  oledState = -(oledState);
+  Serial.println("当前显示状态");
+  Serial.println(oledState);
   detachInterrupt(13);
   attachInterrupt(13, lowInterrupt, FALLING);
   detachInterrupt(0);
@@ -108,26 +142,91 @@ void loop() {
   // put your main code here, to run repeatedly:
   //speechJM();
   get_DHT();//调用传感器函数
-  u8g2.firstPage();
-  do{
-  u8g2.setCursor(10, 10);
-  u8g2.print("江门天气:");
-  u8g2.print(nnowWeather);
-  u8g2.setCursor(0, 25);
-  u8g2.print("温度:");
-            //u8g2.drawStr(0, 35, "温度:");
+  if (oledState == 1)
+  {
+    u8g2.firstPage();
+    do{
+    u8g2.setCursor(10, 10);
+    u8g2.print("江门天气:");
+    u8g2.print(nnowWeather);
+    u8g2.setCursor(0, 25);
+    u8g2.print("温度:");
+              //u8g2.drawStr(0, 35, "温度:");
 
-  u8g2.setCursor(40,25);
-  u8g2.print(nowTemp);
-  u8g2.setCursor(0,40);
-  u8g2.print("室内温度:");
-  u8g2.setCursor(50,40);
-  u8g2.print(dhtT);
-  u8g2.setCursor(0,55);
-  u8g2.print("室内湿度:");
-  u8g2.setCursor(50,55);
-  u8g2.print(dhtH);
-  } while ( u8g2.nextPage() );
+    u8g2.setCursor(40,25);
+    u8g2.print(nowTemp);
+    u8g2.setCursor(0,40);
+    u8g2.print("室内温度:");
+    u8g2.setCursor(50,40);
+    u8g2.print(dhtT);
+    u8g2.setCursor(0,55);
+    u8g2.print("室内湿度:");
+    u8g2.setCursor(50,55);
+    u8g2.print(dhtH);
+    } while ( u8g2.nextPage() );
+  }else if(oledState ==-1){
+    u8g2.firstPage();
+    do{
+    u8g2.setCursor(10, 10);
+    u8g2.print("江门天气:");
+    u8g2.print(nnowWeather);
+    u8g2.setCursor(0, 25);
+    u8g2.print("气象台温度比室内温度");
+    u8g2.setCursor(0,40);
+    wddb.biYiXia(nowTempInt, dhtT);//调用温度对比
+    // if (wddb.zhuangtai = 1)
+    // {
+    //   u8g2.print("低");
+    //   u8g2.print(wddb.chaZhi);
+    //   u8g2.print("摄氏度");
+    // }
+    switch (wddb.zhuangtai)
+    {
+    case 1:
+      /* code */
+      u8g2.print("低");
+      u8g2.print(wddb.chaZhi);
+      u8g2.print("摄氏度");
+      break;
+    case 0:
+      u8g2.print("相等");
+      // u8g2.print(wddb.chaZhi);
+      // u8g2.print("摄氏度");
+    case 2:
+      u8g2.print("高");
+      u8g2.print(wddb.chaZhi);
+      u8g2.print("摄氏度");
+    
+    default:
+      u8g2.print("没比较error");
+      // u8g2.print(wddb.chaZhi);
+      // u8g2.print("摄氏度");
+      break;
+    }
+
+    } while ( u8g2.nextPage() );
+  }
+  
+  // u8g2.firstPage();
+  // do{
+  // u8g2.setCursor(10, 10);
+  // u8g2.print("江门天气:");
+  // u8g2.print(nnowWeather);
+  // u8g2.setCursor(0, 25);
+  // u8g2.print("温度:");
+  //           //u8g2.drawStr(0, 35, "温度:");
+
+  // u8g2.setCursor(40,25);
+  // u8g2.print(nowTemp);
+  // u8g2.setCursor(0,40);
+  // u8g2.print("室内温度:");
+  // u8g2.setCursor(50,40);
+  // u8g2.print(dhtT);
+  // u8g2.setCursor(0,55);
+  // u8g2.print("室内湿度:");
+  // u8g2.setCursor(50,55);
+  // u8g2.print(dhtH);
+  // } while ( u8g2.nextPage() );
 
   String testt4 = "20";
   String qt = testt4;
