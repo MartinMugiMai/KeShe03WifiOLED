@@ -55,6 +55,14 @@ int length1 = 0;
 int zongduanState = 0;
 int oledState = 1; //1显示温度 -1显示对比
 
+//北上广
+String beijingWea = "";
+String beijingTemp = "";
+String shanghaiWea = "";
+String shanghaiTemp = "";
+String guangzhouWea = "";
+String guangzhouTemp = "";
+
 //创建一个叫温度对比的C++类
 class wenDuDuiBi
 {
@@ -106,6 +114,7 @@ void setup(){
   get_WIFI();
   attachInterrupt(13, lowInterrupt, FALLING);
   delay(5000);
+  httpWeatherBSG();
   httpWeather();
   //httpWeather();
   
@@ -680,4 +689,174 @@ void httpWeather(){
     }
   }
   delay(10000);
+}
+
+void httpWeatherBSG(){
+  if (WiFi.status() == WL_CONNECTED){
+    http.begin("http://api.seniverse.com/v3/weather/now.json?key=Sehu5Cll8Qd7jX5_Z&location=beijing&language=zh-Hans&unit=c");//beijing weather
+    int httpCode = http.GET();
+    Serial.println("httpCode:");
+    Serial.println(httpCode);
+    Serial.println(HTTP_CODE_OK);
+    if (httpCode > 0 ){
+      Serial.println(httpCode);
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY){
+        Serial.println("that is OK");
+        String respone = http.getString();
+        Serial.println(respone);
+        
+        const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(1) + 2*JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(6) + 210;
+        DynamicJsonDocument doc(capacity);
+
+        const char* json = "{\"results\":[{\"location\":{\"id\":\"WX4FBXXFKE4F\",\"name\":\"北京\",\"country\":\"CN\",\"path\":\"北京,北京,中国\",\"timezone\":\"Asia/Shanghai\",\"timezone_offset\":\"+08:00\"},\"now\":{\"text\":\"晴\",\"code\":\"0\",\"temperature\":\"5\"},\"last_update\":\"2020-11-23T15:20:00+08:00\"}]}";
+
+        deserializeJson(doc, respone);
+
+        JsonObject results_0 = doc["results"][0];
+
+        JsonObject results_0_location = results_0["location"];
+        const char* results_0_location_id = results_0_location["id"]; // "WX4FBXXFKE4F"
+        const char* results_0_location_name = results_0_location["name"]; // "北京"
+        const char* results_0_location_country = results_0_location["country"]; // "CN"
+        const char* results_0_location_path = results_0_location["path"]; // "北京,北京,中国"
+        const char* results_0_location_timezone = results_0_location["timezone"]; // "Asia/Shanghai"
+        const char* results_0_location_timezone_offset = results_0_location["timezone_offset"]; // "+08:00"
+
+        JsonObject results_0_now = results_0["now"];
+        const char* results_0_now_text = results_0_now["text"]; // "晴"
+        const char* results_0_now_code = results_0_now["code"]; // "0"
+        //String nowWeaCodeYY = results_0_now["code"]; // "0"
+        const char* results_0_now_temperature = results_0_now["temperature"]; // "5"
+        //String nowTempYY = results_0_now["temperature"];
+        const char* results_0_last_update = results_0["last_update"]; // "2020-11-23T15:20:00+08:00"
+        beijingWea = results_0_now_text;
+        beijingTemp = results_0_now_temperature;
+        Serial.println("北京天气是:");
+        Serial.println(beijingWea);
+        Serial.println("温度:");
+        Serial.println(beijingTemp);
+        delay(100);
+      }else {
+        Serial.printf(http.errorToString(httpCode).c_str());
+
+      }
+
+      http.end();
+
+    }else{
+      Serial.println("unable to connect");
+    }
+  }
+  delay(10);
+  if (WiFi.status() == WL_CONNECTED){
+    http.begin("http://api.seniverse.com/v3/weather/now.json?key=Sehu5Cll8Qd7jX5_Z&location=shanghai&language=zh-Hans&unit=c");//shanghai weather
+    int httpCode = http.GET();
+    Serial.println("httpCode:");
+    Serial.println(httpCode);
+    Serial.println(HTTP_CODE_OK);
+    if (httpCode > 0 ){
+      Serial.println(httpCode);
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY){
+        Serial.println("that is OK");
+        String respone = http.getString();
+        Serial.println(respone);
+        
+        const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(1) + 2*JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(6) + 210;
+        DynamicJsonDocument doc(capacity);
+
+        const char* json = "{\"results\":[{\"location\":{\"id\":\"WX4FBXXFKE4F\",\"name\":\"北京\",\"country\":\"CN\",\"path\":\"北京,北京,中国\",\"timezone\":\"Asia/Shanghai\",\"timezone_offset\":\"+08:00\"},\"now\":{\"text\":\"晴\",\"code\":\"0\",\"temperature\":\"5\"},\"last_update\":\"2020-11-23T15:20:00+08:00\"}]}";
+
+        deserializeJson(doc, respone);
+
+        JsonObject results_0 = doc["results"][0];
+
+        JsonObject results_0_location = results_0["location"];
+        const char* results_0_location_id = results_0_location["id"]; // "WX4FBXXFKE4F"
+        const char* results_0_location_name = results_0_location["name"]; // "北京"
+        const char* results_0_location_country = results_0_location["country"]; // "CN"
+        const char* results_0_location_path = results_0_location["path"]; // "北京,北京,中国"
+        const char* results_0_location_timezone = results_0_location["timezone"]; // "Asia/Shanghai"
+        const char* results_0_location_timezone_offset = results_0_location["timezone_offset"]; // "+08:00"
+
+        JsonObject results_0_now = results_0["now"];
+        const char* results_0_now_text = results_0_now["text"]; // "晴"
+        const char* results_0_now_code = results_0_now["code"]; // "0"
+        //String nowWeaCodeYY = results_0_now["code"]; // "0"
+        const char* results_0_now_temperature = results_0_now["temperature"]; // "5"
+        //String nowTempYY = results_0_now["temperature"];
+        const char* results_0_last_update = results_0["last_update"]; // "2020-11-23T15:20:00+08:00"
+        shanghaiWea = results_0_now_text;
+        shanghaiTemp = results_0_now_temperature;
+        Serial.println("上海天气是:");
+        Serial.println(shanghaiWea);
+        Serial.println("温度:");
+        Serial.println(shanghaiTemp);
+        delay(100);
+      }else {
+        Serial.printf(http.errorToString(httpCode).c_str());
+
+      }
+
+      http.end();
+
+    }else{
+      Serial.println("unable to connect");
+    }
+  }
+  delay(10);
+  if (WiFi.status() == WL_CONNECTED){
+    http.begin("http://api.seniverse.com/v3/weather/now.json?key=Sehu5Cll8Qd7jX5_Z&location=guangzhou&language=zh-Hans&unit=c");//beijing weather
+    int httpCode = http.GET();
+    Serial.println("httpCode:");
+    Serial.println(httpCode);
+    Serial.println(HTTP_CODE_OK);
+    if (httpCode > 0 ){
+      Serial.println(httpCode);
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY){
+        Serial.println("that is OK");
+        String respone = http.getString();
+        Serial.println(respone);
+        
+        const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(1) + 2*JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(6) + 210;
+        DynamicJsonDocument doc(capacity);
+
+        const char* json = "{\"results\":[{\"location\":{\"id\":\"WX4FBXXFKE4F\",\"name\":\"北京\",\"country\":\"CN\",\"path\":\"北京,北京,中国\",\"timezone\":\"Asia/Shanghai\",\"timezone_offset\":\"+08:00\"},\"now\":{\"text\":\"晴\",\"code\":\"0\",\"temperature\":\"5\"},\"last_update\":\"2020-11-23T15:20:00+08:00\"}]}";
+
+        deserializeJson(doc, respone);
+
+        JsonObject results_0 = doc["results"][0];
+
+        JsonObject results_0_location = results_0["location"];
+        const char* results_0_location_id = results_0_location["id"]; // "WX4FBXXFKE4F"
+        const char* results_0_location_name = results_0_location["name"]; // "北京"
+        const char* results_0_location_country = results_0_location["country"]; // "CN"
+        const char* results_0_location_path = results_0_location["path"]; // "北京,北京,中国"
+        const char* results_0_location_timezone = results_0_location["timezone"]; // "Asia/Shanghai"
+        const char* results_0_location_timezone_offset = results_0_location["timezone_offset"]; // "+08:00"
+
+        JsonObject results_0_now = results_0["now"];
+        const char* results_0_now_text = results_0_now["text"]; // "晴"
+        const char* results_0_now_code = results_0_now["code"]; // "0"
+        //String nowWeaCodeYY = results_0_now["code"]; // "0"
+        const char* results_0_now_temperature = results_0_now["temperature"]; // "5"
+        //String nowTempYY = results_0_now["temperature"];
+        const char* results_0_last_update = results_0["last_update"]; // "2020-11-23T15:20:00+08:00"
+        guangzhouWea = results_0_now_text;
+        guangzhouTemp = results_0_now_temperature;
+        Serial.println("广州天气是:");
+        Serial.println(guangzhouWea);
+        Serial.println("温度:");
+        Serial.println(guangzhouTemp);
+        delay(100);
+      }else {
+        Serial.printf(http.errorToString(httpCode).c_str());
+
+      }
+
+      http.end();
+
+    }else{
+      Serial.println("unable to connect");
+    }
+  }
 }
