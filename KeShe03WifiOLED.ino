@@ -33,6 +33,8 @@ unsigned int text7wei[] = {0xFD, 0x00, 0x07, 0x01, 0x00, 0xB6, 0xFE, 0xCA, 0xAE,
 unsigned int text5wei[] = {0xFD, 0x00, 0x07, 0x01, 0x00, 0xB6, 0xFE, 0xB1};
 
 unsigned int textt;
+
+unsigned int cloudyDic[] = {0xD2, 0xf5, 0xCC, 0xEc};
 //U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 0, /* data=*/ 4, /* cs=*/ 15, /* dc=*/ 16, /* reset=*/ 5);
 
 //U8G2_SSD1306_128X64_NONAME_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 5, /* dc=*/ 4, /* reset=*/ 0);
@@ -48,6 +50,7 @@ int test21 = 21;
 float dhtH = 1.1;
 float dhtT = 1.1;
 int nowTempInt = 23;
+int nWCode = 0;
 int length1 = 0;
 int zongduanState = 0;
 void setup()
@@ -135,6 +138,8 @@ void loop() {
     Serial.println(zongduanState);
     //speechTemp(10);
     speechTemp(nowTempInt);
+    delay(200);
+    speechWea(nWCode);
     delay(500);
   }
 
@@ -211,9 +216,37 @@ void synout(unsigned int yyd[] , int len)
 
 
 
+
+//:天气播报
+void speechWea(int wCode){
+  if (wCode <=4 && wCode >= 0)
+  {
+    Serial.println("天气晴朗");
+
+    /* code */
+  }else if (wCode = 9)
+  {
+    Serial.println("阴天");
+    int length11 = sizeof(cloudyDic) / sizeof(unsigned int); //度
+      synout(cloudyDic, length11);
+    /* code */
+  }
+  
+  
+}
+
+
+
+
+
+
+//:温度播报
+
 unsigned int weiNum = 0x00;
 unsigned int str1 = 0x00;
 unsigned int str2 = 0x00;
+
+
 void speechTemp(int temp1)
 {
   unsigned int i = 0;
@@ -485,11 +518,14 @@ void httpWeather(){
         JsonObject results_0_now = results_0["now"];
         const char* results_0_now_text = results_0_now["text"]; // "晴"
         const char* results_0_now_code = results_0_now["code"]; // "0"
+        String nowWeaCodeYY = results_0_now["code"]; // "0"
         const char* results_0_now_temperature = results_0_now["temperature"]; // "5"
         String nowTempYY = results_0_now["temperature"];
         const char* results_0_last_update = results_0["last_update"]; // "2020-11-23T15:20:00+08:00"
 
         nnowWeather = results_0_now_text;
+        int nnowWeatherCode = nowWeaCodeYY.toInt();
+        nWCode = nnowWeatherCode;//赋给全局变量天气代码
         nowTemp = results_0_now_temperature;
         nowTempInt = nowTempYY.toInt();
           Serial.println(nowTempInt);
@@ -498,7 +534,9 @@ void httpWeather(){
         Serial.println(nnowWeather);
         Serial.println("温度:");
         Serial.println(nowTemp);
-        get_DHT();//调用传感器函数
+        Serial.println("当前天气code");
+        Serial.println(nnowWeatherCode);
+        get_DHT(); //调用传感器函数
 
         //u8g2.setFont(u8g2_font_unifont_t_chinese2);
 
