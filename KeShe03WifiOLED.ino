@@ -34,7 +34,24 @@ unsigned int text5wei[] = {0xFD, 0x00, 0x07, 0x01, 0x00, 0xB6, 0xFE, 0xB1};
 
 unsigned int textt;
 
-unsigned int cloudyDic[] = {0xD2, 0xf5, 0xCC, 0xEc};
+unsigned int overcastDic[] = {0xD2, 0xf5, 0xCC, 0xEc};//阴天
+unsigned int sunnyDic[] = {0xC7, 0xE7, 0xCC, 0xEC};//晴天
+unsigned int cloudyDic[] = {0xB6, 0xE0, 0xD4, 0xC6};//多云
+unsigned int partlycloudyDic[] = {0xC7,0xE7,0xBC,0xE4,0xB6,0xE0,0xD4,0xC6};//晴间多云
+unsigned int mostlycloudyDic[] = {0xB4,0xF3,0xB2,0xBF,0xB6,0xE0,0xD4,0xC6};//大部多云
+unsigned int showerDic[] = {0xD5, 0xF3, 0xD3, 0xEA}; //阵雨
+unsigned int thundershowerDic[] = {0xC0, 0xD7, 0xD5, 0xF3, 0xD3, 0xEA};//雷阵雨
+unsigned int xiaorainDic[] = { 0xD0,0xA1,0xD3,0xEA};//小雨
+unsigned int zhongrainDic[] = { 0xD6,0xD0,0xD3,0xEA};//
+unsigned int darainDic[] = { 0xB4,0xF3,0xD3,0xEA};//da雨
+unsigned int stormDic[] = { 0xB1,0xA9,0xD3,0xEA};//bao雨
+unsigned int hazeDic[] = { 0xD3,0xD0,0xF6,0xB2};//mai
+unsigned int foggyDic[] = { 0xD3,0xD0,0xCE,0xED};//wu
+unsigned int windyDic[] = { 0xD3,0xD0,0xB7,0xE7};//有风
+unsigned int dawindyDic[] = { 0xB4,0xF3,0xB7,0xE7};//大风
+unsigned int coldDic[] = { 0xC0,0xE4,0xCC,0xEC};//冷
+
+
 //U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 0, /* data=*/ 4, /* cs=*/ 15, /* dc=*/ 16, /* reset=*/ 5);
 
 //U8G2_SSD1306_128X64_NONAME_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 5, /* dc=*/ 4, /* reset=*/ 0);
@@ -196,8 +213,6 @@ void loop() {
     } while ( u8g2.nextPage() );
     break;
   case 2:
-    
-
 
     u8g2.firstPage();
     do{
@@ -443,18 +458,94 @@ void synout(unsigned int yyd[] , int len)
 
 //:天气播报
 void speechWea(int wCode){
-  if (wCode <=4 && wCode >= 0)
+  if (wCode <=3 && wCode >= 0)
   {
     Serial.println("天气晴朗");
-
-    /* code */
-  }else if (wCode = 9)
-  {
     Serial.println("阴天");
-    int length11 = sizeof(cloudyDic) / sizeof(unsigned int); //度
-      synout(cloudyDic, length11);
+    int length11 = sizeof(sunnyDic) / sizeof(unsigned int); //晴天
+      synout(sunnyDic, length11);
     /* code */
+  }else if (wCode >=4)
+  {
+    int length11;
+    switch (wCode)
+    {
+    case 4:
+      length11 = sizeof(cloudyDic) / sizeof(unsigned int); //多云
+      synout(cloudyDic, length11);
+      break;
+    case 5:
+      length11 = sizeof(partlycloudyDic) / sizeof(unsigned int); //局部多云
+      synout(partlycloudyDic, length11);
+      break;
+    case 6:
+      length11 = sizeof(partlycloudyDic) / sizeof(unsigned int); //局部多云
+      synout(partlycloudyDic, length11);
+      break;
+    case 7:
+      length11 = sizeof(mostlycloudyDic) / sizeof(unsigned int); //大部多云
+      synout(mostlycloudyDic, length11);
+      break;
+    case 8:
+      length11 = sizeof(mostlycloudyDic) / sizeof(unsigned int); //大部多云
+      synout(mostlycloudyDic, length11);
+      break;
+    case 9:
+      Serial.println("阴天");
+      length11 = sizeof(overcastDic) / sizeof(unsigned int); //阴
+      synout(overcastDic, length11);
+      break;
+    case 10:
+      length11 = sizeof(showerDic) / sizeof(unsigned int); //阵雨
+      synout(showerDic, length11);
+      break;
+    case 13:
+      length11 = sizeof(xiaorainDic) / sizeof(unsigned int); //小雨
+      synout(xiaorainDic, length11);
+      break;
+
+    case 14:
+      length11 = sizeof(zhongrainDic) / sizeof(unsigned int); //中雨
+      synout(zhongrainDic, length11);
+      break;
+    case 15:
+      length11 = sizeof(darainDic) / sizeof(unsigned int); //大雨
+      synout(darainDic, length11);
+      break;
+    case 16:
+      length11 = sizeof(stormDic) / sizeof(unsigned int); //暴雨
+      synout(stormDic, length11);
+      break;
+    case 30:
+      length11 = sizeof(foggyDic) / sizeof(unsigned int); //雾
+      synout(foggyDic, length11);
+      break;
+    case 31:
+      length11 = sizeof(hazeDic) / sizeof(unsigned int); //雾霾
+      synout(hazeDic, length11);
+      break;
+    case 32:
+      length11 = sizeof(windyDic) / sizeof(unsigned int); //风
+      synout(windyDic, length11);
+      break;
+    case 33:
+      length11 = sizeof(dawindyDic) / sizeof(unsigned int); //大风
+      synout(dawindyDic, length11);
+      break;
+    case 37:
+      length11 = sizeof(coldDic) / sizeof(unsigned int); //冷
+      synout(coldDic, length11);
+      break;
+    default:
+      
+      length11 = sizeof(sunnyDic) / sizeof(unsigned int); //
+      synout(sunnyDic, length11);
+      
+      break;
+    }
   }
+  
+  
   
   
 }
