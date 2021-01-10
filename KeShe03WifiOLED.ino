@@ -590,7 +590,7 @@ void speechTemp(int temp1)
 }
 
 
-//温度传感器函数
+//温度湿度传感器函数
 void get_DHT(){
   float h = dht.readHumidity(); //获取湿度
   float t = dht.readTemperature();//获取温度
@@ -599,7 +599,7 @@ void get_DHT(){
   Serial.println(h);
   Serial.println(t);
   delay(1000);
-  Serial.println("传感器温度获取完成");
+  Serial.println("传感器湿度温度获取完成");
 }
 //WiFi连接函数
 void get_WIFI(){
