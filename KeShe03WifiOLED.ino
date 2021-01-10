@@ -114,8 +114,8 @@ void setup(){
   Serial.begin(115200);
   pinMode(13, INPUT_PULLUP);
   pinMode(0, INPUT_PULLUP);
-  attachInterrupt(13, lowInterrupt, FALLING); //按键中断用D7 13 D8 15
-  attachInterrupt(0, D3Interrupt, FALLING);
+  attachInterrupt(13, lowInterrupt, FALLING); //按键中断用D7对应13 引脚
+  attachInterrupt(0, D3Interrupt, FALLING);//按键中断D3对应0引脚
   softSerial1.begin(9600);
   softSerial1.listen();
   dht.begin();
@@ -125,11 +125,11 @@ void setup(){
   u8g2.enableUTF8Print();
   u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
   u8g2.setFontDirection(0);
-  get_WIFI();
+  get_WIFI();//调用WiFi函数以启动WiFi并连接
   attachInterrupt(13, lowInterrupt, FALLING);
   delay(5000);
-  httpWeatherBSG();
-  httpWeather();
+  httpWeatherBSG();//北上广天气请求
+  httpWeather();//江门天气请求
   //httpWeather();
   
 }
