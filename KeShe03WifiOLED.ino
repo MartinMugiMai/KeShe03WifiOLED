@@ -12,13 +12,11 @@
 #include <string>
 using namespace std;
 
-//#include <Syn6288.h>
-
 #define DHTPIN 2 //D4
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE); //实例化DHT C++风格
-
 SoftwareSerial softSerial1(14,12); //实例化软串口 rx使用D5 io14 与syn6288 tx相连 、 tx使用D6 io12引脚与syn6288 rx相连
+//以下是现在江门温度是和数字的语音字节码
 unsigned int numDic[] = {0xD2, 0xBB, 0xB6, 0xFE, 0xC8, 0xFD, 0xCB, 0xC4, 0xCE, 0xE5, 0xC1, 0xF9, 0xC6, 0xDF, 0xB0, 0xCB, 0xBE, 0xC5, 0xCA, 0xAE};//2n-1 和2n-2
 unsigned int numZero[] = {0xC1, 0xE3};
 unsigned int text1[] = {0xCF, 0xD6, 0xD4, 0xDA, 0xBD, 0xAD, 0xC3, 0xC5, 0xCE, 0xC2, 0xB6, 0xC8, 0xCA, 0xC7}; //现在江门温度是
@@ -33,7 +31,7 @@ unsigned int text7wei[] = {0xFD, 0x00, 0x07, 0x01, 0x00, 0xB6, 0xFE, 0xCA, 0xAE,
 unsigned int text5wei[] = {0xFD, 0x00, 0x07, 0x01, 0x00, 0xB6, 0xFE, 0xB1};
 
 unsigned int textt;
-
+//以下是天气语音字节码
 unsigned int overcastDic[] = {0xD2, 0xf5, 0xCC, 0xEc};//阴天
 unsigned int sunnyDic[] = {0xC7, 0xE7, 0xCC, 0xEC};//晴天
 unsigned int cloudyDic[] = {0xB6, 0xE0, 0xD4, 0xC6};//多云
@@ -52,27 +50,24 @@ unsigned int dawindyDic[] = { 0xB4,0xF3,0xB7,0xE7};//大风
 unsigned int coldDic[] = { 0xC0,0xE4,0xCC,0xEC};//冷
 
 
-//U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 0, /* data=*/ 4, /* cs=*/ 15, /* dc=*/ 16, /* reset=*/ 5);
-
-//U8G2_SSD1306_128X64_NONAME_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 5, /* dc=*/ 4, /* reset=*/ 0);
-
-//U8G2_SSD1306_128X32_UNIVISION_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
-//U8G2_SSD1306_128X32_UNIVISION_1_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
 U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 4, /* data=*/ 5, /* reset=*/ U8X8_PIN_NONE);   // 参照ESP32 Thing, pure SW emulated I2C esp8266引脚 D1给SDL D2给CLK
 
-HTTPClient http; //实例化一个httpclinet请求类 C++ 写法
+HTTPClient http; //实例化一个httpclinet请求类 C++ 写法 用于后边http网络请求
+
+//以下是初始化温度变量和天气信息变量以及传感器温度湿度变量以及
+//语音播报状中断控制状态码、OLED显示器中断控制状态码、天气状态码
 String nnowWeather = "";
 String nowTemp = "";
 int test21 = 21;
 float dhtH = 1.1;
 float dhtT = 1.1;
 int nowTempInt = 23;
-int nWCode = 0;
-int length1 = 0;
-int zongduanState = 0;
-int oledState = 1; //1显示温度 2显示对比 3北上广
+int nWCode = 0; //天气状态码
+int length1 = 0; 
+int zongduanState = 0;//语音播报状态码
+int oledState = 1; //OLED状态码1显示温度 2显示对比 3北上广
 
-//北上广
+//北上广天气和温度储存变量初始化
 String beijingWea = "";
 String beijingTemp = "";
 String shanghaiWea = "";
@@ -80,7 +75,7 @@ String shanghaiTemp = "";
 String guangzhouWea = "";
 String guangzhouTemp = "";
 
-//创建一个叫温度对比的C++类
+//创建一个叫温度对比（网络与传感器对比）的C++类
 class wenDuDuiBi
 {
   public:
@@ -111,6 +106,8 @@ class wenDuDuiBi
 
 wenDuDuiBi wddb; //然后马上实例化一个温度对比
 
+
+//setup()是单片机主程序入口，相当于标准C程序的main函数，但setup函数是初始化只允许一次
 void setup(){
   // put your setup code here, to run once:
   
@@ -136,22 +133,23 @@ void setup(){
   //httpWeather();
   
 }
-
+//设置D7引脚按键的中断运行的函数 
+//更改zongduanState语音播报状态码以触发语音播报
 ICACHE_RAM_ATTR void lowInterrupt(){
   //led = -led;
-  Serial.println("66666666");
+  //Serial.println("66666666");
   //speechTemp(22);
   zongduanState = 1;
   detachInterrupt(13);
   attachInterrupt(13, lowInterrupt, FALLING);
   detachInterrupt(0);
   attachInterrupt(0, D3Interrupt, FALLING);
-  
-  
 }
+//设置D3引脚按键的中断运行的函数 
+//更改oled状态码以触发OLED显示器画面改变
 ICACHE_RAM_ATTR void D3Interrupt(){
   //led = -led;
-  Serial.println("D3D3D3");
+  //Serial.println("D3D3D3");
   //speechTemp(22);
   //oledState = -(oledState);
   Serial.println("当前显示状态");
@@ -184,13 +182,16 @@ ICACHE_RAM_ATTR void D3Interrupt(){
   
 }
 
+//loop()函数是单片机运行setup（）函数之后会循环运行的函数，
+//可以看做是main函数的一部分
 void loop() {
   // put your main code here, to run repeatedly:
   //speechJM();
   get_DHT();//调用传感器函数
+  //switch语句判断OLED显示状态码以正确显示当前OLED内容
   switch (oledState)
   {
-  case 1:
+  case 1: //页面1显示江门天气和传感器信息
     u8g2.firstPage();
     do{
     u8g2.setCursor(10, 10);
@@ -212,7 +213,7 @@ void loop() {
     u8g2.print(dhtH);
     } while ( u8g2.nextPage() );
     break;
-  case 2:
+  case 2://页面2显示温度对比
 
     u8g2.firstPage();
     do{
@@ -255,7 +256,7 @@ void loop() {
 
     } while ( u8g2.nextPage() );
     break;
-  case 3:
+  case 3://页面3显示背上广
     u8g2.firstPage();
     do{
     u8g2.setCursor(10, 10);
@@ -282,130 +283,26 @@ void loop() {
   default:
     break;
   }
-  // if (oledState == 1)
-  // {
-  //   u8g2.firstPage();
-  //   do{
-  //   u8g2.setCursor(10, 10);
-  //   u8g2.print("江门天气:");
-  //   u8g2.print(nnowWeather);
-  //   u8g2.setCursor(0, 25);
-  //   u8g2.print("温度:");
-  //             //u8g2.drawStr(0, 35, "温度:");
-
-  //   u8g2.setCursor(40,25);
-  //   u8g2.print(nowTemp);
-  //   u8g2.setCursor(0,40);
-  //   u8g2.print("室内温度:");
-  //   u8g2.setCursor(50,40);
-  //   u8g2.print(dhtT);
-  //   u8g2.setCursor(0,55);
-  //   u8g2.print("室内湿度:");
-  //   u8g2.setCursor(50,55);
-  //   u8g2.print(dhtH);
-  //   } while ( u8g2.nextPage() );
-  // }else if(oledState ==-1){
-  //   u8g2.firstPage();
-  //   do{
-  //   u8g2.setCursor(10, 10);
-  //   u8g2.print("江门天气:");
-  //   u8g2.print(nnowWeather);
-  //   u8g2.setCursor(0, 25);
-  //   u8g2.print("气象台温度比室内温度");
-  //   u8g2.setCursor(0,40);
-  //   wddb.biYiXia(nowTempInt, dhtT);//调用温度对比
-  //   // if (wddb.zhuangtai = 1)
-  //   // {
-  //   //   u8g2.print("低");
-  //   //   u8g2.print(wddb.chaZhi);
-  //   //   u8g2.print("摄氏度");
-  //   // }
-  //   switch (wddb.zhuangtai)
-  //   {
-  //   case 1:
-  //     /* code */
-  //     u8g2.print("低");
-  //     u8g2.print(wddb.chaZhi);
-  //     u8g2.print("摄氏度");
-  //     break;
-  //   case 0:
-  //     u8g2.print("相等");
-  //     // u8g2.print(wddb.chaZhi);
-  //     // u8g2.print("摄氏度");
-  //   case 2:
-  //     u8g2.print("高");
-  //     u8g2.print(wddb.chaZhi);
-  //     u8g2.print("摄氏度");
-  //     break;
-  //   default:
-  //     u8g2.print("没比较error");
-  //     // u8g2.print(wddb.chaZhi);
-  //     // u8g2.print("摄氏度");
-  //     break;
-  //   }
-
-  //   } while ( u8g2.nextPage() );
-  // }
   
-  // u8g2.firstPage();
-  // do{
-  // u8g2.setCursor(10, 10);
-  // u8g2.print("江门天气:");
-  // u8g2.print(nnowWeather);
-  // u8g2.setCursor(0, 25);
-  // u8g2.print("温度:");
-  //           //u8g2.drawStr(0, 35, "温度:");
 
-  // u8g2.setCursor(40,25);
-  // u8g2.print(nowTemp);
-  // u8g2.setCursor(0,40);
-  // u8g2.print("室内温度:");
-  // u8g2.setCursor(50,40);
-  // u8g2.print(dhtT);
-  // u8g2.setCursor(0,55);
-  // u8g2.print("室内湿度:");
-  // u8g2.setCursor(50,55);
-  // u8g2.print(dhtH);
-  // } while ( u8g2.nextPage() );
 
   String testt4 = "20";
   String qt = testt4;
 
+//当语音播报状态码为1则播报语音
   if (zongduanState == 1)
   {
     zongduanState = 0;
     Serial.println(zongduanState);
     //speechTemp(10);
-    speechTemp(nowTempInt);
+    speechTemp(nowTempInt);//播报江门温度
     delay(200);
-    speechWea(nWCode);
+    speechWea(nWCode);//播报天气
     delay(500);
   }
 
-  //speechTemp(qt.toInt());
-  // length1 = sizeof(textN2) / sizeof(byte);
-  // synout(textN2, length1);
-  // length1 = 0;
-  // length1 = sizeof(textN1) / sizeof(byte);
-  // synout(textN1, length1);
-  //speechJM2();
-  //syn.play(text1, sizeof(text1), 1);
-  // httpWeather();
-  // if (zongduanState == 1)
-  // {
-  //   zongduanState = 0;
-  //   Serial.println(zongduanState);
-  //   speechTemp(22);
-  //   delay(500);
-  // }
-  //  u8g2.firstPage();
-  //  do {
-  //    u8g2.setFont(u8g2_font_ncenB14_tr);
-  //    u8g2.drawStr(0,15,"Temp:");
-  //    u8g2.print(nowTemp);
-  //
-  //  } while ( u8g2.nextPage() );
-  //  delay(1000);
+
+
   
   delay(500);
 }
@@ -416,11 +313,12 @@ void loop() {
 
 //   unsigned int gstr1 = numDic[n];
 //   unsigned int gstr2 = numDic[m];
-// } 应该改用面向对象编程思想的类写法更好，因为需要回传两个返回值
+// } 原猜想应该改用面向对象编程思想的类写法更好，因为需要回传两个返回值
+//但是没用上
 
 
 
-////读一段文字&print函数
+////读一段文字&print函数 输入要读的文本字节和长度
 void synout(unsigned int yyd[] , int len)
 {
   int i = 0;
@@ -551,17 +449,10 @@ void speechWea(int wCode){
 }
 
 
-
-
-
-
 //:温度播报
-
 unsigned int weiNum = 0x00;
 unsigned int str1 = 0x00;
 unsigned int str2 = 0x00;
-
-
 void speechTemp(int temp1)
 {
   unsigned int i = 0;
@@ -699,82 +590,7 @@ void speechTemp(int temp1)
 }
 
 
-
-void speechJM2(){
-  unsigned int i = 0;
-  //unsigned int j = 0;
-
-  // for (j = 0; j < sizeof(text3); j++)
-  // {
-  //   softSerial1.write(text3[j]);
-  // }
-  for (i = 0; i < sizeof(text2); i++)
-  {
-    softSerial1.write(text2[i]);
-  }
-}
-void speechJM(){
-  unsigned int i = 0;
-  unsigned int j = 0;
-
-  for (j = 0; j < (sizeof(text3)/4); j++)
-  {
-    softSerial1.write(text3[j]);
-  }
-  for (i = 0; i < (sizeof(text1)/4); i++)
-  {
-    softSerial1.write(text1[i]);
-  }
-}
-
-void speech(){
-  unsigned char i = 0;
-  unsigned char head[20];
-
-  head[0] = 0xFD;
-  head[1] = 0x00;
-  head[2] = 0x11;
-  head[3] = 0x01;
-  head[4] = 0x00;
-  head[5] = 0xCF;
-  head[6] = 0xD6;
-  head[7] = 0xD4;
-  head[8] = 0xDA;
-  head[9] = 0xBD;
-  head[10] = 0xAD;
-  head[11] = 0xC3;
-  head[12] = 0xC5;
-  head[13] = 0xCE;
-  head[14] = 0xC2;
-  head[15] = 0xB6;
-  head[16] = 0xC8;
-  head[17] = 0xCA;
-  head[18] = 0xC7;
-  head[19] = 0x93;
-
-  for(i=0; i<20; i++){
-    softSerial1.write(head[i]);
-    //Serial.write(head[i]);
-  }
-}
-
-class Syn6288 {
-  public:
-  uint8_t music;
-  uint8_t TEXTLEN;
-  uint8_t pi;
-  void play(uint8_t *text,uint8_t TEXTLEN,uint8_t music);
-//void play(uint8_t *text,uint8_t music);
-  void Slaveboudset(uint16_t boudr);
-  void stop();
-  void restore();
-  void inquire();
-  void Pause();
-  void sleep();
-};
-
-
-
+//温度传感器函数
 void get_DHT(){
   float h = dht.readHumidity(); //获取湿度
   float t = dht.readTemperature();//获取温度
@@ -785,7 +601,7 @@ void get_DHT(){
   delay(1000);
   Serial.println("传感器温度获取完成");
 }
-
+//WiFi连接函数
 void get_WIFI(){
   WiFi.mode(WIFI_STA);
   WiFi.begin("Smhot","ea6662336");
@@ -798,7 +614,7 @@ void get_WIFI(){
   Serial.println(WiFi.localIP());
 
 }
-
+//江门天气请求与获取于JSON数据处理函数
 void httpWeather(){
   if (WiFi.status() == WL_CONNECTED){
     http.begin("http://api.seniverse.com/v3/weather/now.json?key=Sehu5Cll8Qd7jX5_Z&location=jiangmen&language=zh-Hans&unit=c");
@@ -898,6 +714,7 @@ void httpWeather(){
   delay(10000);
 }
 
+//背上广天气请求与获取于JSON数据处理函数
 void httpWeatherBSG(){
   if (WiFi.status() == WL_CONNECTED){
     http.begin("http://api.seniverse.com/v3/weather/now.json?key=Sehu5Cll8Qd7jX5_Z&location=beijing&language=zh-Hans&unit=c");//beijing weather
