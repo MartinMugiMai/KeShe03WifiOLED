@@ -84,7 +84,7 @@ class wenDuDuiBi
   int zhuangtai = 0;
   void biYiXia(int webTemp, float hereTemp)
   {
-    double dwebTemp = webTemp;
+    float dwebTemp = webTemp;
     if (dwebTemp < hereTemp)
       {
         //dx = "小于";
